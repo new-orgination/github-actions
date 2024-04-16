@@ -22,7 +22,7 @@ jobs:
       - name: echo astring
         run: Write-Output "windiws string"
       - name: Error step
-        run: Doesnot exits
+        run: Doesnotexits
         
 
 
