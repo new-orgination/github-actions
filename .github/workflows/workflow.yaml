@@ -11,6 +11,19 @@ jobs:
         run: |
           node -v
           npm -v
-          
+  parallel-job:
+    runs-on: macos-latest
+    steps:
+      - name: View SW Version
+        run: sw_vers
+  dependant-job:
+    runs-on: windows-latest
+    steps:
+      - name: echo astring
+        run: Writr-Output "windiws string"
+      - name: Error step
+        run: Dosnot exits
+        
+
 
 
