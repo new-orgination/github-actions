@@ -6,6 +6,7 @@ on:
       PipelineName:
         description: 'Choose the Pipeline name to trigger'
         required: true
+        default: "CreateMountPoint"
         options:
           - CreateMountPoint
           - Copy LKP_Client table
