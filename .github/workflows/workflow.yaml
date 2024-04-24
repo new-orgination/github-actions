@@ -1,30 +1,54 @@
-name : My-Workflow
-on : [push]
+name: Trigger Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      PipelineName:
+        description: 'Choose the Pipeline name to trigger'
+        required: true
+        default: "CreateMountPoint"
+        options:
+          - CreateMountPoint
+          - Copy LKP_Client table
+          - Exec_Merge_Lookup_Tables
+          - Copy_and_Create_Base_Tables
+          - Execute_Table_View_script
+          - Copy LKP_Client table_testing
+      Environment:
+        description: 'Choose the Pipeline environment to trigger'
+        required: true
+        default: "dev"
+        options:
+          - dev
+          - model
+          - prod
 
 jobs:
-  run-shell-commands:
+  trigger_pipeline:
     runs-on: ubuntu-latest
+
     steps:
-      - name: echo a string
-        run: echo "HELLO WORLD"
-      - name: Multiline Command
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up environment variables
         run: |
-          node -v
-          npm -v
-  parallel-job:
-    runs-on: macos-latest
-    steps:
-      - name: View SW Version
-        run: sw_vers
-  dependant-job:
-    runs-on: windows-latest
-    needs: run-shell-commands
-    steps:
-      - name: echo a string
-        run: Write-Output "windows string"
-      - name: Error step
-        run: doesnotexits
-        
+          if [ "${{ github.event.inputs.Environment }}" = "dev" ]; then
+            export ADF_GROUP1=vg-ADF-dev
+            export ADF_GROUP2=vg-default-dev
+          elif [ "${{ github.event.inputs.Environment }}" = "model" ]; then
+            export ADF_GROUP1=vg-ADF-model
+            export ADF_GROUP2=vg-default-model
+          elif [ "${{ github.event.inputs.Environment }}" = "prod" ]; then
+            export ADF_GROUP1=vg-ADF-prod
+            export ADF_GROUP2=vg-default-prod
+          else
+            echo "Invalid environment"
+            exit 1
+          fi
 
-
-
+      - name: Trigger pipeline
+        run: |
+          # Here you would trigger your pipeline using the environment variables set above.
+          # For GitHub Actions, this typically involves calling another workflow or using an API to trigger a workflow.
+          # You can replace this with the appropriate command to trigger your pipeline.
