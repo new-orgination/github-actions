@@ -1,0 +1,49 @@
+name: SQL Script Execution
+run-name: SQL Script Execution by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      SQLFilename:
+        description: 'Enter the SQL script filename with .sql extension'
+        required: true
+        default: test.sql
+        type: string
+      Environment:
+        description: 'Choose the environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - model
+          - prod
+        default: dev
+
+jobs:
+  execute-sql-script:
+    runs-on: windows-latest
+    env:
+      SQL_FILENAME: "${{ github.event.inputs.SQLFilename }}"
+      ENVIRONMENT: "${{ github.event.inputs.Environment }}"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Load environment variables
+        run: |
+          echo "SQL_FILENAME=${{ github.event.inputs.SQLFilename }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=${{ github.event.inputs.Environment }}" >> $GITHUB_ENV
+
+      - name: Run SQL script
+        run: |
+          .\scripts\execute-sql.ps1 -SqlFile "${{ env.SQL_FILENAME }}" -Environment "${{ env.ENVIRONMENT }}"
+
+  call-template:
+    needs: execute-sql-script
+    uses: GL.AIM-Earnings/AIM-Earnings-Deployment-Templates/.github/workflows/SQL-Script-execution-template.yml@feature/templateupdates
+    with:
+      Environment: "${{ env.ENVIRONMENT }}"
+      SQLFilename: "${{ env.SQL_FILENAME }}"
+    secrets:
+      DEV_AZURE_SECRET: ${{ secrets.DEV_AZURE_SECRET }}
